@@ -96,25 +96,11 @@ package
    Device::Chip::Adapter::LinuxKernel::_base;
 
 use Carp;
-use List::Util qw( first );
 
 sub new {
    my $class = shift;
 
    bless { }, $class;
-}
-
-sub _find_speed {
-   shift;
-   my ( $max_bitrate, @speeds ) = @_;
-
-    return first {
-        my $rate = $_;
-        $rate =~ s/k$/000/;
-        $rate =~ s/M$/000000/;
-
-        $rate <= $max_bitrate
-    } @speeds;
 }
 
 # Most modes have no GPIO on this system
@@ -150,8 +136,6 @@ package
     Device::Chip::Adapter::LinuxKernel::_GPIO;
     
 use base qw( Device::Chip::Adapter::LinuxKernel::_base );
-
-use List::Util 1.29 qw( pairmap );
 use Carp qw/croak/;
 
 sub configure {
@@ -323,8 +307,6 @@ package
     Device::Chip::Adapter::LinuxKernel::_I2C;
 
 use base qw( Device::Chip::Adapter::LinuxKernel::_base );
-
-use List::Util 1.29 qw( pairmap );
 use Carp qw/croak/;
 use Device::SMBus;
 

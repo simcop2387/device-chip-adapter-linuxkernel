@@ -5,6 +5,8 @@ use warnings;
 use base qw( Device::Chip::Adapter );
 use Carp qw/croak/;
 
+our $VERSION = "0.000001"; # Pre-versioning systems release.
+
 our $__TESTDIR=""; # blank unless we're being pointed at a test setup
 
 =head1 NAME
@@ -16,18 +18,35 @@ C<Device::Chip::Adapter::LinuxKernel> - A C<Device::Chip::Adapter> implementatio
 This class implements the C<Device::Chip::Adapter> interface for the I<LinuxKernel>,
 allowing an instance of L<Device::Chip> driver to communicate with the actual
 chip hardware by using the Linux Kernel interfaces for GPIO, I2C (SMbus), and SPI.
+Suitble for use on any Linux system including Raspberry PI (RPI), Beaglebone, Banana PI
+or any other single board computer that exposes IO via the standard Linux Kernel
+interfaces.
 
 =head1 CONSTRUCTOR
-=cut
 
-=head2 new
+=cut
 
 =head2 new
 
    $adapter = Device::Chip::Adapter::LinuxKernel->new( %args )
 
-Returns a new instance of a C<Device::Chip::Adapter::Kernel>.
-Takes the same named arguments as L<Gibberish>.
+Returns a new instance of a C<Device::Chip::Adapter::LinuxKernel>.
+
+=head1 KNOWN ISSUES
+
+=over
+
+=item I2C reading likely doesn't work properly
+
+=item GPIO performance is probably horrendous.  We re-open the /value file in sysfs over and over for every action.  This could be better by storing the filehandles
+
+=back
+
+=head1 PLANS AHEAD
+
+I'm going to release a companion module to this for Raspberry PI devices.  
+It'll automatically detect which set of hardware you're on and select the appropriate busses for you.
+I'll also be working to add "interrupt" support for the GPIO so that you can use C<poll(2)> or C<select(2)> to get a trigger on edge detection on some GPIO devices.
 
 =cut
 
@@ -63,7 +82,8 @@ sub make_protocol_SPI {
 
 sub make_protocol_I2C {
     my $self = shift;
-
+    
+    Device::Chip::Adapter::LinuxKernel::_I2C->new();
 }
 
 sub shutdown {
@@ -301,6 +321,63 @@ sub read_gpios {
 
 package 
     Device::Chip::Adapter::LinuxKernel::_I2C;
+
+use base qw( Device::Chip::Adapter::LinuxKernel::_base );
+
+use List::Util 1.29 qw( pairmap );
+use Carp qw/croak/;
+use Device::SMBus;
+
+sub configure {
+    my $self = shift;
+    my %args = @_;
+
+    $self->{address} = delete $args{addr};
+    # $self->{max_rate} = delete $args{max_bitrate}; # We're unable to affect this from userland it seems
+    $self->{bus} = delete $args{bus}; # i2c-0, ...
+    
+    croak "Missing required parameter 'bus'" unless defined $self->{bus};
+    croak "Missing required parameter 'addr'" unless defined $self->{address};
+        
+    croak "Unrecognised configuration options: " . join( ", ", keys %args ) if %args;
+
+    $self->{smbus} = Device::SMBus->new(
+        I2CBusDevicePath => $self->{bus},
+        I2CDeviceAddress => $self->{address},
+    );
+
+    return $self;
+}
+
+sub write {
+    my $self = shift;
+    my ($bytes_out) = @_;
+    my @bytes = unpack "C*", $bytes_out; # unpack it into an array for Device::SMBus
+    
+    my $register = shift @bytes; # Not always technically a register, but 99% of things do work that way.
+    
+    $self->{smbus}->writeBlockData($register, \@bytes);
+    
+    Future->done;
+}
+
+sub write_then_read {    # TODO This is probably completely fucked up
+    my $self = shift;
+    my ($bytes_out, $len_in) = @_;
+    my @bytes = unpack "C*", $bytes_out; # unpack it into an array for Device::SMBus
+
+    # Here's the fucked up part.  I don't see how I can get the functionality that I THINK is expected here with Device::SMBus.
+    # I'm going to do it this way anyway because it'll probably work for maybe 50% of devices, but there's some i know it won't work
+    # properly with.  I'll make patches for Device::SMBus to be able to write a block of data and read the immediate response
+    # in the same I2C transaction, which is what I believe this is after.
+    my $register = shift @bytes; 
+    $self->{smbus}->writeBlockData($register, \@bytes);
+    Future->done(pack("C*", $self->{smbus}->readBlockData($register, $len_in)));
+}
+
+sub read {
+    
+}
 
 package
     Device::Chip::Adapter::LinuxKernel::_SPI;

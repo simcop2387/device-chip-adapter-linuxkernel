@@ -9,7 +9,10 @@ use Data::Dumper;
 use Device::Chip::Adapter::LinuxKernel;
 #$Device::Chip::Adapter::LinuxKernel::__TESTDIR="testdirs";
 
-my $kernelchip = Device::Chip::Adapter::LinuxKernel->new();
+my $kernelchip = Device::Chip::Adapter->new_from_description("LinuxKernel");
 
-my $gpio = $kernelchip->make_protocol("GPIO");
-print Dumper($gpio->list_gpios);
+my $gpio = $kernelchip->make_protocol("I2C");
+
+$gpio->configure(bus => '/dev/i2c-1', addr => 0x08);
+
+$gpio->write("\0Hello World");

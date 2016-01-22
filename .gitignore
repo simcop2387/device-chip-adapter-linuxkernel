@@ -2,3 +2,9 @@
 extern/
 blib/
 inc/
+Device-Chip-Adapter-LinuxKernel-*.tar.gz
+MANIFEST
+META.yml
+MYMETA.json
+MYMETA.yml
+Makefile

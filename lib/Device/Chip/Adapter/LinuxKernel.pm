@@ -5,7 +5,7 @@ use warnings;
 use base qw( Device::Chip::Adapter );
 use Carp qw/croak/;
 
-our $VERSION = "0.000001"; # Pre-versioning systems release.
+our $VERSION = "0.000002"; # Pre-versioning systems release.
 
 our $__TESTDIR=""; # blank unless we're being pointed at a test setup
 

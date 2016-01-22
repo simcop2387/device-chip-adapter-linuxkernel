@@ -146,14 +146,31 @@ sub configure {
     return $self;
 }
 
-sub _read_gpio_info {} # TODO
+sub _read_gpio_info {
+    my $self = shift;
+    my ($gpio) = @_;
+    my %info;
+    
+    for my $f (qw/direction edge active_low/) {
+        local $/;
+      
+        my $fn = $__TESTDIR."/sys/class/gpio/$gpio/$f";
+        if (-f $fn) { # these won't always exist
+            open (my $fh, "<", ) or die "Couldn't open GPIO data $gpio/$f: $!";
+            $info{$f} = <$fh>;
+            close($fh);
+        }
+    }
+    
+    return \%info;
+}
 
 sub _get_exported {
     my $self = shift;
     my @sysfs_list = $self->_get_sysfs_list;
     
     # Give back a hash for all the gpios
-    return +{map {$_ => {_export_at_start => 1, $self->_read_gpio_info}} grep {!/gpiochip/} @sysfs_list};
+    return +{map {$_ => {_export_at_start => 1, %{$self->_read_gpio_info($_)}}} grep {!/gpiochip/} @sysfs_list};
 }
 
 sub _get_sysfs_list {
@@ -206,16 +223,80 @@ sub _export_gpio {
     my $self = shift;
     my ($gpio) = @_;
     
+    # Already exported, nothing to do
+    return if ($self->{gpiostate}{$gpio});
     
+    # TODO this needs to support aliases
+    my ($gpio_num) = ($gpio =~ /gpio(\d+)/);
+    open(my $fh, ">", $__TESTDIR."/sys/class/gpio/export") or die "Couldn't export $gpio via sysfs: $!";
+    print $fh $gpio_num, "\n";
+    close($fh);
+    
+    $self->{gpiostate}{$gpio} = $self->_read_gpio_info($gpio);
+}
+
+sub _set_gpio_direction {
+    my $self = shift;
+    my ($gpio, $direction) = @_; # TODO support aliases
+    
+    # TODO check direction for correct values
+    
+    $self->_export_gpio($gpio);
+    die "GPIO '$gpio' doesn't support direction change" unless (defined $self->{gpiostate}{$gpio}{direction});
+    
+    open(my $fh, ">", $__TESTDIR."/sys/class/gpio/$gpio/direction") or die "Couldn't change direction of $gpio: $!";
+    print $fh $direction, "\n";
+    close($fh);
+}
+
+sub _set_gpio_value {
+    my $self = shift;
+    my ($gpio, $value) = @_;
+    
+    $self->_export_gpio($gpio);
+    
+    # TODO keep FH around for faster performance
+    open(my $fh, ">", $__TESTDIR."/sys/class/gpio/$gpio/value") or die "Can't write a value to GPIO $gpio (probably input only): $!";
+    print $fh ($value ? 1 : 0);
+    close($fh);
+}
+
+sub _read_gpio_value {
+    my $self = shift;
+    my ($gpio) = @_;
+    $self->_export_gpio($gpio);
+    
+    # TODO keep FH around for faster performance
+    open(my $fh, "<", $__TESTDIR."/sys/class/gpio/$gpio/value") or die "Can't write a value to GPIO $gpio (probably input only): $!";
+    my $value = <$fh>;
+    close($fh);
+    
+    return 0+$fh; # make perl get rid of the \n for us
+}
+
+# TODO make this do something, also give it an interface
+sub _set_edge_trigger {
 }
 
 sub _unexport_gpio {
 }
 
 sub write_gpios {
+    my ($self) = shift;
+    my ($gpios) = @_;
+    
+    for my $gpio (keys %$gpios) {
+        $self->_set_gpio_value($gpios->{$gpio});
+    }
+    
+    Future->done
 }
 
 sub read_gpios {
+    my ($self) = shift;
+    my ($gpios) = @_;
+    
+    Future->done({map {$_ => $self->_read_gpio_value} @$gpios});
 }
 
 package 

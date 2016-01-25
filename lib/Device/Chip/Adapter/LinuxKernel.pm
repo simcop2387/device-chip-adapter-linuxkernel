@@ -5,7 +5,7 @@ use warnings;
 use base qw( Device::Chip::Adapter );
 use Carp qw/croak/;
 
-our $VERSION = "0.000002"; # Pre-versioning systems release.
+our $VERSION = "0.00001";
 
 our $__TESTDIR=""; # blank unless we're being pointed at a test setup
 
@@ -71,7 +71,9 @@ sub new_from_description {
 sub make_protocol_GPIO {
    my $self = shift;
 
-   Device::Chip::Adapter::LinuxKernel::_GPIO->new();
+   my $proto = Device::Chip::Adapter::LinuxKernel::_GPIO->new();
+
+   Future->done($proto);
 }
 
 sub make_protocol_SPI {
@@ -83,7 +85,9 @@ sub make_protocol_SPI {
 sub make_protocol_I2C {
     my $self = shift;
     
-    Device::Chip::Adapter::LinuxKernel::_I2C->new();
+    my $proto = Device::Chip::Adapter::LinuxKernel::_I2C->new();
+    
+    Future->done($proto);
 }
 
 sub shutdown {
@@ -313,7 +317,7 @@ use Device::SMBus;
 sub configure {
     my $self = shift;
     my %args = @_;
-
+    
     $self->{address} = delete $args{addr};
     # $self->{max_rate} = delete $args{max_bitrate}; # We're unable to affect this from userland it seems
     $self->{bus} = delete $args{bus}; # i2c-0, ...
@@ -328,7 +332,7 @@ sub configure {
         I2CDeviceAddress => $self->{address},
     );
 
-    return $self;
+    Future->done($self);
 }
 
 sub write {
@@ -343,22 +347,14 @@ sub write {
     Future->done;
 }
 
-sub write_then_read {    # TODO This is probably completely fucked up
+sub write_then_read {
     my $self = shift;
     my ($bytes_out, $len_in) = @_;
-    my @bytes = unpack "C*", $bytes_out; # unpack it into an array for Device::SMBus
+    my ($register, @bytes) = unpack "C*", $bytes_out; # unpack it into an array for Device::SMBus, this doesn't support larger writes to select multiple registers or other fancy shit
 
-    # Here's the fucked up part.  I don't see how I can get the functionality that I THINK is expected here with Device::SMBus.
-    # I'm going to do it this way anyway because it'll probably work for maybe 50% of devices, but there's some i know it won't work
-    # properly with.  I'll make patches for Device::SMBus to be able to write a block of data and read the immediate response
-    # in the same I2C transaction, which is what I believe this is after.
-    my $register = shift @bytes; 
-    $self->{smbus}->writeBlockData($register, \@bytes);
-    Future->done(pack("C*", $self->{smbus}->readBlockData($register, $len_in)));
-}
-
-sub read {
+    my $val = join "", map {chr(0+$_)} $self->{smbus}->readBlockData($register, $len_in);
     
+    Future->done($val);
 }
 
 package

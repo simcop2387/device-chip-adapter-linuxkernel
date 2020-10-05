@@ -11,6 +11,7 @@ our $VERSION = '0.00003';
 require XSLoader;
 XSLoader::load();
 
+use Device::Chip::Adapter::LinuxKernel::_base;
 use base qw( Device::Chip::Adapter::LinuxKernel::_base );
 use Carp qw/croak/;
 

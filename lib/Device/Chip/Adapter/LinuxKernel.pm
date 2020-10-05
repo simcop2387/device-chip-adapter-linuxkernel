@@ -409,6 +409,8 @@ sub read {
 
 Ryan Voots <ryan@voots.org>
 
+Stephen Cavilia <sac+cpan@atomicradi.us>
+
 =cut
 
 0x55AA;

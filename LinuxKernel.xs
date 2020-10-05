@@ -50,11 +50,6 @@ _spidev_transfer(fd, txdata)
     STRLEN txlen;
     unsigned char *txdata_buf = SvPVbyte(txdata, txlen);
     unsigned char *rxdata = malloc(txlen);
-printf("length: %d\n", txlen);
-for (int i=0; i<txlen; i++)
-  {
-    printf("[%d] = %d\n", i, txdata_buf[i]);
-  }
     struct spi_ioc_transfer xfer = {
         .tx_buf = (unsigned long)txdata_buf,
         .rx_buf = (unsigned long)rxdata,

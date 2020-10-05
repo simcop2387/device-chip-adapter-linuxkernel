@@ -9,6 +9,9 @@ our $VERSION = "0.00001";
 
 our $__TESTDIR=""; # blank unless we're being pointed at a test setup
 
+require XSLoader;
+XSLoader::load();
+
 =head1 NAME
 
 C<Device::Chip::Adapter::LinuxKernel> - A C<Device::Chip::Adapter> implementation
@@ -79,7 +82,9 @@ sub make_protocol_GPIO {
 sub make_protocol_SPI {
    my $self = shift;
 
-   die 'SPI unsupported currently';
+   my $proto = Device::Chip::Adapter::LinuxKernel::_SPI->new();
+
+   Future->done($proto);
 }
 
 sub make_protocol_I2C {
@@ -360,6 +365,45 @@ sub write_then_read {
 package
     Device::Chip::Adapter::LinuxKernel::_SPI;
 
+use base qw( Device::Chip::Adapter::LinuxKernel::_base );
+use Carp qw/croak/;
+
+sub configure {
+    my $self = shift;
+    my %args = @_;
+
+    $self->{spidev} = Device::Chip::Adapter::LinuxKernel::_spidev_open("/dev/spidev0.0");
+    Device::Chip::Adapter::LinuxKernel::_spidev_set_mode($self->{spidev}, $args{mode})
+	if defined $args{mode};
+    Device::Chip::Adapter::LinuxKernel::_spidev_set_speed($self->{spidev}, $args{max_bitrate})
+	if defined $args{max_bitrate};
+
+    Future->done($self);
+}
+
+sub readwrite {
+    my $self = shift;
+    my $bytes = shift;
+
+    my $bytes_in = Device::Chip::Adapter::LinuxKernel::_spidev_transfer($self->{spidev}, $bytes);
+
+    Future->done($bytes_in);
+}
+
+sub write {
+    my $self = shift;
+    my $bytes = shift;
+
+    $self->readwrite($bytes);
+}
+
+sub read {
+    my $self = shift;
+    my $len = shift;
+
+    my $bytes_out = chr(0) x $len;
+    return $self->readwrite($bytes_out);
+}
 
 =head1 AUTHOR
 

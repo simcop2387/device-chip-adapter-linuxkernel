@@ -8,7 +8,7 @@
 #include <linux/spi/spidev.h>
 #include <stdio.h>
 
-MODULE = Device::Chip::Adapter::LinuxKernel		PACKAGE = Device::Chip::Adapter::LinuxKernel
+MODULE = Device::Chip::Adapter::LinuxKernel::_SPI		PACKAGE = Device::Chip::Adapter::LinuxKernel::_SPI
 
 int
 _spidev_open(devnode)

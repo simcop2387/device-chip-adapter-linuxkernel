@@ -1,6 +1,7 @@
 0.00002 - Oct 4 2020
   * Merged SPI support from zgu
   * Port to distzilla, fix docs and other missing bits
+  * Add perlcritic, and fix bug it found in gpio code
 
 0.00001 - Jan 24 2016
   * Initial public release

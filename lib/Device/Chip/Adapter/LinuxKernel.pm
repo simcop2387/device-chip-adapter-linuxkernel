@@ -5,7 +5,7 @@ use warnings;
 use base qw( Device::Chip::Adapter );
 use Carp qw/croak/;
 
-our $VERSION = "0.00001";
+our $VERSION = "0.00002";
 
 our $__TESTDIR=""; # blank unless we're being pointed at a test setup
 
@@ -169,7 +169,7 @@ sub _read_gpio_info {
       
         my $fn = $__TESTDIR."/sys/class/gpio/$gpio/$f";
         if (-f $fn) { # these won't always exist
-            open (my $fh, "<", ) or die "Couldn't open GPIO data $gpio/$f: $!";
+            open (my $fh, "<", $fn) or die "Couldn't open GPIO data $gpio/$f: $!";
             $info{$f} = <$fh>;
             close($fh);
         }
@@ -411,6 +411,12 @@ Ryan Voots <ryan@voots.org>
 
 Stephen Cavilia <sac+cpan@atomicradi.us>
 
+
+=head1 COPYRIGHT AND LICENSE
+
+This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.
+
 =cut
+
 
 0x55AA;

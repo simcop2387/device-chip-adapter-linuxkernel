@@ -1,0 +1,51 @@
+=pod
+
+=head1 NAME
+
+C<Device::Chip::Adapter::LinuxKernel> - A C<Device::Chip::Adapter> implementation
+
+=head1 DESCRIPTION
+
+This class implements the C<Device::Chip::Adapter> interface for the I<LinuxKernel>,
+allowing an instance of L<Device::Chip> driver to communicate with the actual
+chip hardware by using the Linux Kernel interfaces for GPIO, I2C (SMbus), and SPI.
+Suitble for use on any Linux system including Raspberry PI (RPI), Beaglebone, Banana PI
+or any other single board computer that exposes IO via the standard Linux Kernel
+interfaces.
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+   $adapter = Device::Chip::Adapter::LinuxKernel->new( %args )
+
+Returns a new instance of a C<Device::Chip::Adapter::LinuxKernel>.
+
+=head1 KNOWN ISSUES
+
+=over
+
+=item I2C reading likely doesn't work properly
+
+=item GPIO performance is probably horrendous.  We re-open the /value file in sysfs over and over for every action.  This could be better by storing the filehandles
+
+=back
+
+=head1 PLANS AHEAD
+
+I'm going to release a companion module to this for Raspberry PI devices.  
+It'll automatically detect which set of hardware you're on and select the appropriate busses for you.
+I'll also be working to add "interrupt" support for the GPIO so that you can use C<poll(2)> or C<select(2)> to get a trigger on edge detection on some GPIO devices.
+
+=head1 AUTHOR
+
+Ryan Voots <ryan@voots.org>
+
+Stephen Cavilia <sac+cpan@atomicradi.us>
+
+
+=head1 COPYRIGHT AND LICENSE
+
+This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.
+
+=cut

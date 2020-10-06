@@ -1,3 +1,6 @@
+0.00003 - Oct 4 2020
+  * Move code around so that the SPI code is properly named
+
 0.00002 - Oct 4 2020
   * Merged SPI support from zgu
   * Port to distzilla, fix docs and other missing bits

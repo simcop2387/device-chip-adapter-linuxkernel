@@ -6,7 +6,7 @@ use base qw( Device::Chip::Adapter );
 use Carp qw/croak/;
 use Device::Chip::Adapter::LinuxKernel::_SPI;
 
-our $VERSION = '0.00003';
+our $VERSION = '0.00004';
 
 our $__TESTDIR=""; # blank unless we're being pointed at a test setup
 

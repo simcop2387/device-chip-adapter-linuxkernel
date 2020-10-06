@@ -19,20 +19,26 @@ sub configure {
     my $self = shift;
     my %args = @_;
 
-    $self->{spidev} = Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_open("/dev/spidev0.0");
-    Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_set_mode($self->{spidev}, $args{mode})
+    $self->{spidev} = _spidev_open("/dev/spidev0.0");
+    _spidev_set_mode($self->{spidev}, $args{mode})
 	if defined $args{mode};
-    Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_set_speed($self->{spidev}, $args{max_bitrate})
+    _spidev_set_speed($self->{spidev}, $args{max_bitrate})
 	if defined $args{max_bitrate};
 
     Future->done($self);
+}
+
+sub DESTROY {
+    my $self = shift;
+
+    _spidev_close($self->{spidev});
 }
 
 sub readwrite {
     my $self = shift;
     my $bytes = shift;
 
-    my $bytes_in = Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_transfer($self->{spidev}, $bytes);
+    my $bytes_in = _spidev_transfer($self->{spidev}, $bytes);
 
     Future->done($bytes_in);
 }

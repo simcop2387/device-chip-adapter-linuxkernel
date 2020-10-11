@@ -24,10 +24,10 @@ sub configure {
         _spidev_close($self->{spidev});
     }
 
-    $self->{spidev} = _spidev_open("/dev/spidev0.0");
-    _spidev_set_mode($self->{spidev}, $args{mode})
+    $self->{spidev} = Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_open("/dev/".$self->{spi_bus});
+    Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_set_mode($self->{spidev}, $args{mode})
 	if defined $args{mode};
-    _spidev_set_speed($self->{spidev}, $args{max_bitrate})
+    Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_set_speed($self->{spidev}, $args{max_bitrate})
 	if defined $args{max_bitrate};
 
     Future->done($self);

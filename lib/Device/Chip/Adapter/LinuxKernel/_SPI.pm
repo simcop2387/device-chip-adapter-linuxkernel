@@ -19,6 +19,11 @@ sub configure {
     my $self = shift;
     my %args = @_;
 
+    if (defined $self->{spidev})
+    {
+        _spidev_close($self->{spidev});
+    }
+
     $self->{spidev} = _spidev_open("/dev/spidev0.0");
     _spidev_set_mode($self->{spidev}, $args{mode})
 	if defined $args{mode};
@@ -31,7 +36,10 @@ sub configure {
 sub DESTROY {
     my $self = shift;
 
-    _spidev_close($self->{spidev});
+    if (defined $self->{spidev})
+    {
+        _spidev_close($self->{spidev});
+    }
 }
 
 sub readwrite {

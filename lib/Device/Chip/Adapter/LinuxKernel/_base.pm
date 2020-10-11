@@ -13,7 +13,7 @@ use Carp;
 sub new {
    my $class = shift;
 
-   bless { }, $class;
+   bless {@_ }, $class;
 }
 
 # Most modes have no GPIO on this system

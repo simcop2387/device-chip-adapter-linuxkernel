@@ -296,7 +296,7 @@ sub configure {
     my %args = @_;
     
     $self->{address} = delete $args{addr};
-    # $self->{max_rate} = delete $args{max_bitrate}; # We're unable to affect this from userland it seems
+    $self->{max_rate} = delete $args{max_bitrate}; # We're unable to affect this from userland it seems
     
     croak "Missing required parameter 'bus'" unless defined $self->{i2c_bus};
     croak "Missing required parameter 'addr'" unless defined $self->{address};

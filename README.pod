@@ -19,6 +19,14 @@ interfaces.
 
    $adapter = Device::Chip::Adapter::LinuxKernel->new( %args )
 
+=over
+
+=item i2c_bus - Optional, which i2c bus to connect to.  i2c-0, i2c-1, ...
+
+=item spi_bus - Optional, which spi controller to use.   spidev0.0, ... 
+
+=back
+
 Returns a new instance of a C<Device::Chip::Adapter::LinuxKernel>.
 
 =head1 KNOWN ISSUES

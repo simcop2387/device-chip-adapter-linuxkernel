@@ -81,7 +81,7 @@ int _i2cdev_write(fd, addr, txdata)
   OUTPUT:
     RETVAL
 
-int _i2cdev_write_read(fd, addr, txdata, rxlen)
+SV* _i2cdev_write_read(fd, addr, txdata, rxlen)
     int fd
     int addr
     SV* txdata

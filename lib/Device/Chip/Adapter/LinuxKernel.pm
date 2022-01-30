@@ -7,7 +7,7 @@ use Carp qw/croak/;
 use Device::Chip::Adapter::LinuxKernel::_SPI;
 use Device::Chip::Adapter::LinuxKernel::_I2C;
 
-our $VERSION = '0.00007';
+our $VERSION = '0.00008';
 
 our $__TESTDIR=""; # blank unless we're being pointed at a test setup
 

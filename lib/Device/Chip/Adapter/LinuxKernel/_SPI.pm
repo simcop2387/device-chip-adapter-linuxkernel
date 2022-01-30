@@ -3,17 +3,13 @@ package
 
 use strict;
 use warnings;
-use base qw( Device::Chip::Adapter );
+use base qw( Device::Chip::Adapter::LinuxKernel::_base );
 use Carp qw/croak/;
 
 our $VERSION = '0.00007';
 
 require XSLoader;
 XSLoader::load();
-
-use Device::Chip::Adapter::LinuxKernel::_base;
-use base qw( Device::Chip::Adapter::LinuxKernel::_base );
-use Carp qw/croak/;
 
 sub configure {
     my $self = shift;

@@ -20,7 +20,10 @@ sub configure {
         _spidev_close($self->{spidev});
     }
 
-    $self->{spidev} = Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_open("/dev/".$self->{spi_bus});
+    my $devpath = "/dev/$self->{spi_bus}";
+    ( $self->{spidev} = Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_open($devpath) ) > -1 or
+	croak "Unable to open $devpath - $!";
+
     Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_set_mode($self->{spidev}, $args{mode})
 	if defined $args{mode};
     Device::Chip::Adapter::LinuxKernel::_SPI::_spidev_set_speed($self->{spidev}, $args{max_bitrate})

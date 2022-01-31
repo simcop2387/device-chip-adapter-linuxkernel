@@ -290,6 +290,7 @@ Ryan Voots <ryan@voots.org>
 
 Stephen Cavilia <sac+cpan@atomicradi.us>
 
+Paul "LeoNerd" Evans <pevans@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

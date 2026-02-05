@@ -130,6 +130,11 @@ sub configure {
     return $self;
 }
 
+sub power {
+    # nothing to do; we don't have control over any power pins
+    Future->done;
+}
+
 sub _read_gpio_info {
     my $self = shift;
     my ($gpio) = @_;

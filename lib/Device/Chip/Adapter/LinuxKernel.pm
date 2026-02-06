@@ -293,7 +293,7 @@ sub read_gpios {
 
 Ryan Voots <ryan@voots.org>
 
-Stephen Cavilia <sac+cpan@atomicradi.us>
+Stephen Cavilia <sacC<+>cpan@atomicradi.us>
 
 Paul "LeoNerd" Evans <pevans@cpan.org>
 

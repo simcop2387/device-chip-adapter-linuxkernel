@@ -37,7 +37,7 @@ I'll also be working to add "interrupt" support for the GPIO so that you can use
 
 Ryan Voots <ryan@voots.org>
 
-Stephen Cavilia &lt;sac+cpan@atomicradi.us>
+Stephen Cavilia &lt;sac`+`cpan@atomicradi.us>
 
 Paul "LeoNerd" Evans <pevans@cpan.org>
 

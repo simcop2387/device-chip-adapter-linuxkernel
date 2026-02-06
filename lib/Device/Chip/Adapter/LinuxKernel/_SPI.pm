@@ -41,6 +41,11 @@ sub DESTROY {
     }
 }
 
+sub power {
+    # nothing to do; we don't have control over any power pins
+    Future->done;
+}
+
 sub readwrite {
     my $self = shift;
     my $bytes = shift;

@@ -38,6 +38,11 @@ sub configure {
     Future->done($self);
 }
 
+sub power {
+    # nothing to do; we don't have control over any power pins
+    Future->done;
+}
+
 sub write {
     my $self = shift;
     my ($bytes_out) = @_;

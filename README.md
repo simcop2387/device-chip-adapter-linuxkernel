@@ -35,11 +35,11 @@ I'll also be working to add "interrupt" support for the GPIO so that you can use
 
 # AUTHOR
 
-Ryan Voots <ryan@voots.org>
+Ryan Voots [ryan@voots.org](https://metacpan.org/pod/ryan%40voots.org)
 
-Stephen Cavilia &lt;sac+cpan@atomicradi.us>
+Stephen Cavilia [sac+cpan@atomicradi.us](https://metacpan.org/pod/sac%2Bcpan%40atomicradi.us)
 
-Paul "LeoNerd" Evans <pevans@cpan.org>
+Paul "LeoNerd" Evans [pevans@cpan.org](https://metacpan.org/pod/pevans%40cpan.org)
 
 # COPYRIGHT AND LICENSE
 

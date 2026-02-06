@@ -291,11 +291,11 @@ sub read_gpios {
 
 =head1 AUTHOR
 
-Ryan Voots <ryan@voots.org>
+Ryan Voots L<ryan@voots.org>
 
-Stephen Cavilia <sacC<+>cpan@atomicradi.us>
+Stephen Cavilia L<sac+cpan@atomicradi.us>
 
-Paul "LeoNerd" Evans <pevans@cpan.org>
+Paul "LeoNerd" Evans L<pevans@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

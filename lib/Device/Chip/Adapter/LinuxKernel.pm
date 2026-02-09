@@ -48,8 +48,6 @@ Returns a new instance of a C<Device::Chip::Adapter::LinuxKernel>.
 
 =item I2C reading likely doesn't work properly
 
-=item GPIO performance is probably horrendous.  We re-open the /value file in sysfs over and over for every action.  This could be better by storing the filehandles
-
 =back
 
 =head1 PLANS AHEAD
@@ -117,6 +115,7 @@ package
     
 use base qw( Device::Chip::Adapter::LinuxKernel::_base );
 use Carp qw/croak/;
+use Fcntl qw/SEEK_SET/;
 
 sub configure {
     my $self = shift;
@@ -225,6 +224,17 @@ sub _export_gpio {
     $self->{gpiostate}{$gpio} = $self->_read_gpio_info($gpio);
 }
 
+sub _open_gpio_value {
+    my $self = shift;
+    my ($gpio) = @_;
+
+    return $self->{gpiostate}{$gpio}{value} //= do {
+        open(my $fh, "+>", $__TESTDIR."/sys/class/gpio/$gpio/value") or
+            die "Can't open GPIO $gpio value handle: $!";
+        $fh;
+    };
+}
+
 sub _set_gpio_direction {
     my $self = shift;
     my ($gpio, $direction) = @_; # TODO support aliases
@@ -244,11 +254,10 @@ sub _set_gpio_value {
     my ($gpio, $value) = @_;
     
     $self->_export_gpio($gpio);
-    
-    # TODO keep FH around for faster performance
-    open(my $fh, ">", $__TESTDIR."/sys/class/gpio/$gpio/value") or die "Can't write a value to GPIO $gpio (probably input only): $!";
-    print $fh ($value ? 1 : 0);
-    close($fh);
+    my $fh = $self->_open_gpio_value($gpio);
+
+    $fh->sysseek(0, SEEK_SET);
+    $fh->syswrite($value ? 1 : 0);
 }
 
 sub _read_gpio_value {
@@ -256,10 +265,10 @@ sub _read_gpio_value {
     my ($gpio) = @_;
     $self->_export_gpio($gpio);
     
-    # TODO keep FH around for faster performance
-    open(my $fh, "<", $__TESTDIR."/sys/class/gpio/$gpio/value") or die "Can't write a value to GPIO $gpio (probably input only): $!";
-    my $value = <$fh>;
-    close($fh);
+    my $fh = $self->_open_gpio_value($gpio);
+
+    $fh->sysseek(0, SEEK_SET);
+    $fh->sysread(my $value, 16); # value will be "0\n" or "1\n" so a small buffer is fine
     
     return 0+$value; # make perl get rid of the \n for us
 }

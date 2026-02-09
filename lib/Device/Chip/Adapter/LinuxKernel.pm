@@ -200,9 +200,10 @@ sub list_gpios {
         # SysFS interface numbers them all from 0 to the end, so we can generate a list of them based off the final one
         my $lastgpiochip_info = $self->_read_gpiochip_info($lastgpiochip);
         
-        my $count = $lastgpiochip_info->{base} + $lastgpiochip_info->{ngpio};
+        my $base = $lastgpiochip_info->{base};
+        my $max  = $lastgpiochip_info->{base} + $lastgpiochip_info->{ngpio} - 1;
         
-        return map {"gpio".$_} 0..$count-1;
+        return map {"gpio".$_} $base..$max;
     } else {
         return ();
     }

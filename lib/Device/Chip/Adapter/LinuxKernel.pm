@@ -261,7 +261,7 @@ sub _read_gpio_value {
     my $value = <$fh>;
     close($fh);
     
-    return 0+$fh; # make perl get rid of the \n for us
+    return 0+$value; # make perl get rid of the \n for us
 }
 
 # TODO make this do something, also give it an interface
@@ -286,7 +286,7 @@ sub read_gpios {
     my ($self) = shift;
     my ($gpios) = @_;
     
-    Future->done({map {$_ => $self->_read_gpio_value} @$gpios});
+    Future->done({map {$_ => $self->_read_gpio_value($_)} @$gpios});
 }
 
 

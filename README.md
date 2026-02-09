@@ -25,7 +25,6 @@ Returns a new instance of a `Device::Chip::Adapter::LinuxKernel`.
 # KNOWN ISSUES
 
 - I2C reading likely doesn't work properly
-- GPIO performance is probably horrendous.  We re-open the /value file in sysfs over and over for every action.  This could be better by storing the filehandles
 
 # PLANS AHEAD
 

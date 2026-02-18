@@ -185,27 +185,23 @@ sub _read_gpiochip_info {
     return \%info;
 }
 
-# TODO this needs to get it from SysFS
 sub list_gpios {
     my $self = shift;
-    # TODO make this sort better.  I just can't think of what it should be.
     my @chips = sort {my ($l, $r) = ($a =~ /(\d+)/, $b =~ /(\d+)/); $l <=> $r}
                 grep {/gpiochip/}
                 $self->_get_sysfs_list();
-                
-    my $lastgpiochip = $chips[-1];
-    
-    if ($lastgpiochip) {
-        # SysFS interface numbers them all from 0 to the end, so we can generate a list of them based off the final one
-        my $lastgpiochip_info = $self->_read_gpiochip_info($lastgpiochip);
-        
-        my $base = $lastgpiochip_info->{base};
-        my $max  = $lastgpiochip_info->{base} + $lastgpiochip_info->{ngpio} - 1;
-        
-        return map {"gpio".$_} $base..$max;
-    } else {
-        return ();
+
+    # Collect GPIOs from every chip individually to handle gaps/holes in the
+    # GPIO number space (chips don't necessarily form a contiguous range).
+    my @gpios;
+    for my $chip (@chips) {
+        my $info = $self->_read_gpiochip_info($chip);
+        my $base = $info->{base};
+        my $max  = $info->{base} + $info->{ngpio} - 1;
+        push @gpios, map {"gpio".$_} $base..$max;
     }
+
+    return @gpios;
 }
 
 sub _export_gpio {

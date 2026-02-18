@@ -281,7 +281,7 @@ sub write_gpios {
     my ($gpios) = @_;
     
     for my $gpio (keys %$gpios) {
-        $self->_set_gpio_value($gpio, $gpios->{$gpio});
+        $self->_set_gpio_value($gpios->{$gpio});
     }
     
     Future->done
